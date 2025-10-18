@@ -1,0 +1,44 @@
+# This is the "recipe" file for GitHub Actions
+name: Build Flutter APK
+
+# This tells GitHub to run the build process every time you push new code
+on:
+  push:
+    branches:
+      - main # Or master, depending on your default branch name
+
+jobs:
+  build:
+    runs-on: ubuntu-latest # Use a standard online computer (Linux)
+    steps:
+      # Step 1: Get your code from the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Set up the Java environment, which Android needs
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '11'
+
+      # Step 3: Set up the Flutter environment
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      # Step 4: Get your app's dependencies
+      - name: Install dependencies
+        run: flutter pub get
+
+      # Step 5: Build the final APK file
+      - name: Build APK
+        run: flutter build apk --release
+
+      # Step 6: Upload the finished APK so you can download it
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: app-release
+          path: build/app/outputs/flutter-apk/app-release.apk
